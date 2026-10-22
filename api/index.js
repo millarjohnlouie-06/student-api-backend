@@ -2,20 +2,21 @@
 const connectToDatabase = require('../db');
 const mongoose = require('mongoose');
 
-const RecordSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, trim: true, maxlength: 100 },
-    content: { type: String, required: true, trim: true, maxlength: 1000 },
-  },
-  { timestamps: true }
-);
+// Define the database schema matching your daily_attendance collection
+const AttendanceSchema = new mongoose.Schema({
+  studentId: String,
+  studentName: String,
+  subjectName: String,
+  section: String,
+  attendance: Array
+}, { strict: false });
 
-const Record = mongoose.models.Record || mongoose.model('Record', RecordSchema);
-
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
+const Attendance = mongoose.models.daily_attendance || mongoose.model('daily_attendance', AttendanceSchema, 'daily_attendance');
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  // Enable CORS so GitHub Pages can communicate with this API
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -26,24 +27,20 @@ module.exports = async (req, res) => {
   try {
     await connectToDatabase();
 
+    // Handle fetching data (GET)
     if (req.method === 'GET') {
-      const records = await Record.find({}).sort({ createdAt: -1 }).limit(100);
+      const records = await Attendance.find({});
       return res.status(200).json(records);
     }
 
+    // Handle submitting new data (POST)
     if (req.method === 'POST') {
-      const { title, content } = req.body || {};
-      const newRecord = await Record.create({ title, content });
+      const newRecord = await Attendance.create(req.body);
       return res.status(201).json(newRecord);
     }
 
     return res.status(405).json({ error: 'Method Not Allowed' });
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        error: 'Title and content are required (max 100 and 1000 characters).',
-      });
-    }
     console.error(error);
     return res.status(500).json({ error: 'Database connection failed' });
   }
