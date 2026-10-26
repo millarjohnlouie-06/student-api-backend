@@ -30,13 +30,15 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      const newRecord = await Attendance.create(req.body);
+      // Ensure body is parsed correctly
+      const requestData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      const newRecord = await Attendance.create(requestData);
       return res.status(201).json(newRecord);
     }
 
     return res.status(405).json({ error: 'Method Not Allowed' });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Database connection failed' });
+    return res.status(500).json({ error: error.message });
   }
 };
