@@ -11,6 +11,14 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "mongoose": "^9.11.2"
-  }
+    "mongoose": "^9.11.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/millarjohnlouie-06/student-api-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/millarjohnlouie-06/student-api-backend/issues"
+  },
+  "homepage": "https://github.com/millarjohnlouie-06/student-api-backend#readme"
 }
